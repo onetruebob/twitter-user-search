@@ -1,0 +1,15 @@
+{
+  "name": "twitter-search",
+  "version": "1.0.0",
+  "description": "Get CSV of user names based on search and profile data subsearch.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "rx": "^4.1.0",
+    "twitter": "^1.2.5"
+  }
+}
