@@ -19,6 +19,9 @@ let foundCount = 0
 
 let hackEquals = (obj1, obj2) => JSON.stringify(obj1) === JSON.stringify(obj2)
 
+//Pattern for creating observables from paged APIs based on:
+// http://stackoverflow.com/questions/27514310/turning-paginated-requests-into-an-observable-stream-with-rxjs
+
 let getSearchFromServer = (searchTerm, page) => {
     return Rx.Observable.create((obs) => {
         let params = {
@@ -34,13 +37,13 @@ let getSearchFromServer = (searchTerm, page) => {
                 obs.onNext(users)
             }
             obs.onCompleted()
-        });
+        })
     })
 }
 
 
 let getAllSearchPages = (searchTerm) => {
-    console.log(`Starting search for: ${searchTerm}`);
+    console.log(`Starting search for: ${searchTerm}`)
     return Rx.Observable.create((obs) => {
         let disposable = new Rx.SerialDisposable()
         let previousUsers = []
@@ -54,13 +57,13 @@ let getAllSearchPages = (searchTerm) => {
                     if (hackEquals(results, previousUsers) || page > pagesPerQuery) {
                         obs.onCompleted()
                     } else {
-                        previousUsers = results;
-                        recur(page + 1);
+                        previousUsers = results
+                        recur(page + 1)
                     }
                 },
                 (error) => {
                     if (error[0] && error[0].code == 88) {
-                        console.log('At search limit. Resuming search in 16 minutes');
+                        console.log('At search limit. Resuming search in 16 minutes')
                         setTimeout(() => recur(page), apiResetTime) // Over search limit. Keep trying after 16 mins.
                     } else {
                         console.log('Got error:', error, '. Retrying.')
@@ -76,11 +79,25 @@ let getAllSearchPages = (searchTerm) => {
     })
 }
 
+
+/* ---------
+Here's where I have a question.
+If I swap out the definitions for getAllUsersFromSearchTerm I get different behavior.
+
+If I use the first one (A), then all the searches start progressing immediately.
+If I use the second (B), I get the desired behavior of completely processing through the first search before beginning the next.
+
+What is causing this difference in behavior? Is there a better way to get the behavior I'd prefer?
+
+-------- */
+
+// (A)
 // let getAllUsersFromSearchTerm = (searchTerm) => getAllSearchPages(searchTerm)
 //     .reduce((accUsers, newUsers) => accUsers.concat(newUsers), [])
 
+// (B)
 let getAllUsersFromSearchTerm = (searchTerm) => {
-    let users = [];
+    let users = []
     return Rx.Observable.create((obs) => {
         getAllSearchPages(searchTerm).subscribe(
             (user) => users.push(user),
@@ -93,28 +110,31 @@ let getAllUsersFromSearchTerm = (searchTerm) => {
     })
 }
 
+///////////////////////////////
+
+
 let userIsValid = (searchTerm) => {
     return (user) => {
-        totalUserCount++;
+        totalUserCount++
 
-        let lowerDescription = user.description && user.description.toLowerCase();
-        let lowerName = user.name && user.name.toLowerCase();
+        let lowerDescription = user.description && user.description.toLowerCase()
+        let lowerName = user.name && user.name.toLowerCase()
 
         if(!(lowerDescription.includes(searchTerm) || lowerName.includes(searchTerm))) {
-            failedDescriptionCount++;
-            return false;
+            failedDescriptionCount++
+            return false
         }
 
         if (usersFound[user.screen_name]) {
-            dupUserCount++;
-            return false;
+            dupUserCount++
+            return false
         }
 
-        usersFound[user.screen_name] = true;
-        foundCount++;
-        return true;
+        usersFound[user.screen_name] = true
+        foundCount++
+        return true
     }
-};
+}
 
 let searchUsersQuery = searchTermObservable
     .concatMap((searchTerm) => getAllUsersFromSearchTerm(searchTerm), (searchTerm, users) => ({searchTerm, users}))
