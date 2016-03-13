@@ -80,35 +80,8 @@ let getAllSearchPages = (searchTerm) => {
 }
 
 
-/* ---------
-Here's where I have a question.
-If I swap out the definitions for getAllUsersFromSearchTerm I get different behavior.
-
-If I use the first one (A), then all the searches start progressing immediately.
-If I use the second (B), I get the desired behavior of completely processing through the first search before beginning the next.
-
-What is causing this difference in behavior? Is there a better way to get the behavior I'd prefer?
-
--------- */
-
-// (A)
 let getAllUsersFromSearchTerm = (searchTerm) => getAllSearchPages(searchTerm)
     .reduce((accUsers, newUsers) => accUsers.concat(newUsers), [])
-
-// (B)
-// let getAllUsersFromSearchTerm = (searchTerm) => {
-//     let users = []
-//     return Rx.Observable.create((obs) => {
-//         getAllSearchPages(searchTerm).subscribe(
-//             (user) => users.push(user),
-//             (error) => obs.onError(error),
-//             () => {
-//                 obs.onNext(users)
-//                 obs.onCompleted()
-//             }
-//             )
-//     })
-// }
 
 ///////////////////////////////
 
