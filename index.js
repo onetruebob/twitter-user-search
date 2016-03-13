@@ -92,23 +92,23 @@ What is causing this difference in behavior? Is there a better way to get the be
 -------- */
 
 // (A)
-// let getAllUsersFromSearchTerm = (searchTerm) => getAllSearchPages(searchTerm)
-//     .reduce((accUsers, newUsers) => accUsers.concat(newUsers), [])
+let getAllUsersFromSearchTerm = (searchTerm) => getAllSearchPages(searchTerm)
+    .reduce((accUsers, newUsers) => accUsers.concat(newUsers), [])
 
 // (B)
-let getAllUsersFromSearchTerm = (searchTerm) => {
-    let users = []
-    return Rx.Observable.create((obs) => {
-        getAllSearchPages(searchTerm).subscribe(
-            (user) => users.push(user),
-            (error) => obs.onError(error),
-            () => {
-                obs.onNext(users)
-                obs.onCompleted()
-            }
-            )
-    })
-}
+// let getAllUsersFromSearchTerm = (searchTerm) => {
+//     let users = []
+//     return Rx.Observable.create((obs) => {
+//         getAllSearchPages(searchTerm).subscribe(
+//             (user) => users.push(user),
+//             (error) => obs.onError(error),
+//             () => {
+//                 obs.onNext(users)
+//                 obs.onCompleted()
+//             }
+//             )
+//     })
+// }
 
 ///////////////////////////////
 
