@@ -16,6 +16,8 @@ Available here: https://apps.twitter.com/
 
 ### Populate the searchTerms.json array with the list of user titles you'd like to search for.
 
-### Run `npm install`
+### Install npm dependencies
+`npm install`
 
-## Run `node index.js`
+### Run it
+`node index.js`
